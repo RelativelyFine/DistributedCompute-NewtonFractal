@@ -1,0 +1,28 @@
+{
+  "name": "dcp",
+  "version": "1.0.0",
+  "description": "mandelbrotzoom",
+  "main": "basic.js",
+  "dependencies": {
+    "dcp-client": "^4.2.14",
+    "dcp-worker": "^3.2.12-b",
+    "fs": "0.0.1-security",
+    "gifencoder": "^2.0.1",
+    "png-file-stream": "^1.2.1",
+    "sharp": "^0.31.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RelativelyFine/dcp.git"
+  },
+  "author": "David Courtis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RelativelyFine/dcp/issues"
+  },
+  "homepage": "https://github.com/RelativelyFine/dcp#readme"
+}
