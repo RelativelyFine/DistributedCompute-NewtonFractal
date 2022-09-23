@@ -2,81 +2,78 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sympy import *
-
-# A list of colors to distinguish the roots.
-colors = ['teal', 'brown', 'seagreen', 'rebecca purple']
-
-TOL = 1.e-8
+from bifrost import npm, node
 
 
-def newton(z0, f, fprime, MAX_IT=1000):
-    """The Newton-Raphson method applied to f(z).
+def create_fractal(FUNCTION: Expr = False, n=500):
+    colors = ['teal', 'brown', 'seagreen', 'rebecca purple']
+    TOL = 1.e-8
+    x = Symbol('x')
 
-    Returns the root found, starting with an initial guess, z0, or False
-    if no convergence to tolerance TOL was reached within MAX_IT iterations.
+    FUNCTION = x**3+x**2-1 if FUNCTION is False else FUNCTION
+    FUNCTION_PRIME = FUNCTION.diff(x)
+    _FUNCTION = lambdify(x, FUNCTION)
+    _FUNCTION_PRIME = lambdify(x, FUNCTION_PRIME)
 
-    """
+    def newton(z0, f, fprime, MAX_IT=1000):
+        """The Newton-Raphson method applied to f(z).
 
-    z = z0
-    for i in range(MAX_IT):
-        dz = f(z)/fprime(z)
-        if abs(dz) < TOL:
-            return z
-        z -= dz
-    return False
-
-
-def plot_newton_fractal(f, fprime, n=200, domain=(-1, 1, -1, 1)):
-    """Plot a Newton Fractal by finding the roots of f(z).
-
-    The domain used for the fractal image is the region of the complex plane
-    (xmin, xmax, ymin, ymax) where z = x + iy, discretized into n values along
-    each axis.
-
-    """
-
-    roots = []
-    m = np.zeros((n, n))
-
-    def get_root_index(roots, r):
-        """Get the index of r in the list roots.
-
-        If r is not in roots, append it to the list.
+        Returns the root found, starting with an initial guess, z0, or False
+        if no convergence to tolerance TOL was reached within MAX_IT iterations.
 
         """
 
-        try:
-            return np.where(np.isclose(roots, r, atol=TOL))[0][0]
-        except IndexError:
-            roots.append(r)
-            return len(roots) - 1
+        z = z0
+        for i in range(MAX_IT):
+            dz = f(z)/fprime(z)
+            if abs(dz) < TOL:
+                return z
+            z -= dz
+        return False
 
-    xmin, xmax, ymin, ymax = domain
-    for ix, x in enumerate(np.linspace(xmin, xmax, n)):
-        for iy, y in enumerate(np.linspace(ymin, ymax, n)):
-            z0 = x + y*1j
-            r = newton(z0, f, fprime)
-            if r is not False:
-                ir = get_root_index(roots, r)
-                m[iy, ix] = ir
-    nroots = len(roots)
-    if nroots > len(colors):
-        # Use a "continuous" colormap if there are too many roots.
-        cmap = 'hsv'
-    else:
-        # Use a list of colors for the colormap: one for each root.
-        cmap = ListedColormap(colors[:nroots])
-    plt.imshow(m, cmap=cmap, origin='lower')
-    plt.axis('off')
-    plt.show()
+    def plot_newton_fractal(f, fprime, n=200, domain=(-1, 1, -1, 1)):
+        """Plot a Newton Fractal by finding the roots of f(z).
 
+        The domain used for the fractal image is the region of the complex plane
+        (xmin, xmax, ymin, ymax) where z = x + iy, discretized into n values along
+        each axis.
 
-def main():
-    z = Symbol('z')
-    FUNCTION = 3*z**5+2*z**3-1
-    FUNCTION_PRIME = FUNCTION.diff(z)
-    _FUNCTION = lambdify(z, FUNCTION)
-    _FUNCTION_PRIME = lambdify(z, FUNCTION_PRIME)
+        """
+
+        roots = []
+        m = np.zeros((n, n))
+
+        def get_root_index(roots, r):
+            """Get the index of r in the list roots.
+
+            If r is not in roots, append it to the list.
+
+            """
+
+            try:
+                return np.where(np.isclose(roots, r, atol=TOL))[0][0]
+            except IndexError:
+                roots.append(r)
+                return len(roots) - 1
+
+        xmin, xmax, ymin, ymax = domain
+        for ix, x in enumerate(np.linspace(xmin, xmax, n)):
+            for iy, y in enumerate(np.linspace(ymin, ymax, n)):
+                z0 = x + y*1j
+                r = newton(z0, f, fprime)
+                if r is not False:
+                    ir = get_root_index(roots, r)
+                    m[iy, ix] = ir
+        nroots = len(roots)
+        if nroots > len(colors):
+            # Use a "continuous" colormap if there are too many roots.
+            cmap = 'hsv'
+        else:
+            # Use a list of colors for the colormap: one for each root.
+            cmap = ListedColormap(colors[:nroots])
+        plt.imshow(m, cmap=cmap, origin='lower')
+        plt.axis('off')
+        plt.show()
 
     def f(z):
         return _FUNCTION(z)
@@ -84,4 +81,9 @@ def main():
     def fprime(z):
         return _FUNCTION_PRIME(z)
 
-    plot_newton_fractal(f, fprime, n=500)
+    plot_newton_fractal(f, fprime, n=n)
+
+
+create_fractal(n=1300)
+
+resulting_dictionary_of_variables = node.run(create_fractal(n=1300))
